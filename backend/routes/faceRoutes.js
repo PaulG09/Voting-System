@@ -1,12 +1,13 @@
 const express = require('express');
-const router = express.Router();
 const multer = require('multer');
-const upload = multer();
-const { verifyFace, enrollFace } = require('../controllers/faceController');
+const faceController = require('../controllers/faceController');
+const router = express.Router();
 
-// POST /api/face/verify
-router.post('/verify', upload.single('image'), verifyFace);
+const upload = multer({ dest: 'uploads/' });
+
 // POST /api/face/enroll
-router.post('/enroll', upload.single('image'), enrollFace);
+router.post('/enroll', upload.single('image'), faceController.enrollFace);
+// POST /api/face/verify
+router.post('/verify', upload.single('image'), faceController.verifyFace);
 
 module.exports = router;
