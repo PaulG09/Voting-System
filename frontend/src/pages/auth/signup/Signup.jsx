@@ -19,7 +19,12 @@ const Signup = ({ onVerified }) => {
       setSuccess('Verification code sent to your email.');
       setStep(2);
     } catch (err) {
-      setError(err.message);
+      // Check for backend "already registered" error
+      if (err.message && err.message.toLowerCase().includes('already registered')) {
+        setError('You have already registered. Please login.');
+      } else {
+        setError(err.message);
+      }
     } finally { setLoading(false); }
   };
 
