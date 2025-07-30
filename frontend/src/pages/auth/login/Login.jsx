@@ -1,20 +1,22 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useLogin from '../../../hooks/useLogin';
 import './Login.css';
 
-const LoginPage = ({ onLogin }) => {
+const Login = ({ onLogin }) => {
 
   const [reference, setReference] = useState('');
   const [password, setPassword] = useState('');
   const { handleLogin, loading, error } = useLogin();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await handleLogin(reference, password);
     if (result && onLogin) {
       onLogin(result.user);
+      // Redirect to face verification page with user reference in state
+      navigate('/face-verification', { state: { userReference: reference } });
     }
   };
 
@@ -72,4 +74,5 @@ const LoginPage = ({ onLogin }) => {
   );
 }
 
-export default LoginPage;
+export default Login;
+

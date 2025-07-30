@@ -1,17 +1,18 @@
 import React from 'react';
 import './App.css';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import store from './redux/store';
 import LoginPage from './pages/auth/login/Login.jsx';
 import SignupPage from './pages/auth/signup/Signup.jsx';
-import ImageVerificationPage from './pages/ImageVerificationPage.jsx';
+import FaceEnroll from './pages/auth/signup/FaceEnroll.jsx';
+import FaceVerify from './pages/auth/login/FaceVerify.jsx';
 import { setUser, logout } from './redux/authSlice';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 
 function AppContent() {
   const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector(state => state.auth);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogin = (user) => {
     dispatch(setUser(user));
@@ -20,17 +21,32 @@ function AppContent() {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/');
+    navigate('/login');
   };
+
+  // Helper to parse query params for face-enroll route
+  const getQueryParams = () => {
+    const searchParams = new URLSearchParams(location.search);
+    return {
+      reference: searchParams.get('reference'),
+      email: searchParams.get('email'),
+    };
+  };
+
+  const { reference, email } = getQueryParams();
 
   return (
     <Routes>
-      <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
-      <Route path="/signup" element={<SignupPage onVerified={(reference, email) => {
-        // After email verification, route to face enrollment and pass details
-        window.location.href = `/face-enroll?reference=${reference}&email=${encodeURIComponent(email)}`;
-      }} />} />
-      <Route path="/face-verification" element={isAuthenticated ? <ImageVerificationPage /> : <LoginPage onLogin={handleLogin} />} />
+      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+      <Route path="/signup" element={
+        <SignupPage onVerified={(reference, email) => {
+          // After email verification, route to face enrollment and pass details
+          navigate(`/face-enroll?reference=${reference}&email=${encodeURIComponent(email)}`);
+        }} />
+      } />
+      <Route path="/face-enroll" element={<FaceEnroll reference={reference} email={email} />} />
+      <Route path="/face-verification" element={<FaceVerify />} />
     </Routes>
   );
 }
