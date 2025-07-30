@@ -1,10 +1,9 @@
 require('dotenv').config();
-const pool = require('./src/config/db');
+const pool = require('./config/db');
 const express = require('express');
 const cors = require('cors');
-const authRoutes = require('./src/routes/authRoutes');
-const faceRoutes = require('./src/routes/faceRoutes');
-const { createFaceFeaturesTable } = require('./src/models/faceFeatureModel');
+const authRoutes = require('./routes/authRoutes');
+const faceRoutes = require('./routes/faceRoutes');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -17,10 +16,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/face', faceRoutes);
 
 pool.connect()
-  .then(async () => {
+  .then(() => {
     console.log('Connected to PostgreSQL database!');
-    // Ensure face_features table exists
-    await createFaceFeaturesTable();
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
     });
